@@ -1,0 +1,29 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build wc Plugin",
+            "type": "shell",
+            "command": "go build",
+            "args": [
+                "--buildmode=plugin",
+                "./src/mrapps/wc.go"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",  // 总是显示终端输出
+                "focus": false,      // 执行时不聚焦到终端
+                "panel": "shared"    // 使用共享终端面板
+            },
+            "problemMatcher": "$go",  // 使用 Go 的问题匹配器
+            "runOptions": {
+                "runOn": "default"
+            }
+        }
+    ]
+}

@@ -36,11 +36,23 @@ func (c *Coordinator) Example(args *ExampleArgs, reply *ExampleReply) error {
 	return nil
 }
 
+// 响应Map完成事件
+func (c *Coordinator) HandleMapFinish(args *CallArgs, reply *TaskReply) error {
+	// 检测时间戳
+	if args.task.timestamp == c.maptask[args.task.index].timestamp {
+		// 更改task状态
+		c.maptask[args.task.index].missionstate = Done
+	}
+
+	return nil
+}
+
 // 分配Map任务给Worker
 func (c *Coordinator) AssignMission(args *CallArgs, reply *TaskReply) error {
 	c.mut.Lock()
 	defer c.mut.Unlock()
 	tmpCheckAllFinish := true // 检测是否全完成了。如果是false说明至少有一个任务ready或running
+	reply.NReduce = c.nreduce // 传输nreduce个数，确保worker可以用到
 	// 首先完成map任务分配
 	if !c.maptaskfinish {
 		i := 0
@@ -99,6 +111,10 @@ func (c *Coordinator) Done() bool {
 
 	// Your code here.
 
+	// 如果mapfinish和reducefinish就Done
+	if c.maptaskfinish && c.reducetaskfinish {
+		ret = true
+	}
 	return ret
 }
 
@@ -118,9 +134,7 @@ func MakeCoordinator(files []string, nReduce int) *Coordinator {
 			fmt.Println("错误读取文件：", err)
 			return nil
 		}
-		for _, filename := range files {
-			c.filename = append(c.filename, filename)
-		}
+		c.filename = append(c.filename, files...)
 	}
 
 	//初始化可以分配的maptask
@@ -140,6 +154,10 @@ func MakeCoordinator(files []string, nReduce int) *Coordinator {
 		c.reducetask[i].index = i
 		c.reducetask[i].missionstate = Ready
 
+		// 初始化每个要读取的reducefile的文件名
+		for index := range c.filename {
+			c.reducetask[i].reducefiles = append(c.reducetask[i].reducefiles, fmt.Sprintf("mr-%v-%v", index, i))
+		}
 	}
 
 	c.server()
