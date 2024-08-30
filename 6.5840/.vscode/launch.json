@@ -10,10 +10,10 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/src/main/mrworker.go",
-            
-            "args": ["pg-*.txt"],
-            "preLaunchTask": "Build wc Plugin",
-            "cwd": "${workspaceFolder}" , // 设置当前工作目录
+            "buildFlags": ["-race"],
+            "args": ["wc.so"],
+            //"preLaunchTask": "Build wc plugin",
+            "cwd": "${workspaceFolder}/src/main" , // 设置当前工作目录
             
         },
 
@@ -23,11 +23,17 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/src/main/mrcoordinator.go",
-            
+            "buildFlags": ["-race"],
             "args": ["pg-*.txt"],
-            "preLaunchTask": "Build wc Plugin",
-            "cwd": "${workspaceFolder}" , // 设置当前工作目录
+            "preLaunchTask": "Build wc plugin",
+            "cwd": "${workspaceFolder}/src/main" , // 设置当前工作目录
             
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Debug Master and Worker",
+            "configurations": ["Coordinator Debugger", "Worker Debugger"]
         }
     ]
 }

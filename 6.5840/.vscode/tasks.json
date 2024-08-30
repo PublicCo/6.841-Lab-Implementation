@@ -4,13 +4,20 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build wc Plugin",
+            "label": "Build wc plugin",
             "type": "shell",
-            "command": "go build",
+            
+            "command": "go",
             "args": [
-                "--buildmode=plugin",
-                "./src/mrapps/wc.go"
+                "build",
+                "-race",
+                "-buildmode=plugin",
+                "-gcflags=\"all=-N -l\"",
+                "../mrapps/wc.go"
             ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/main"
+            },
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -23,7 +30,36 @@
             "problemMatcher": "$go",  // 使用 Go 的问题匹配器
             "runOptions": {
                 "runOn": "default"
-            }
+            },
+                
+        },
+        {
+            "label": "Remove file",
+            "type": "shell",
+            "command":"rm",
+            "args": [
+                "-rf",
+                "Tempfile*.txt",
+                "mr-*.txt"
+            ], "options": {
+                "cwd": "${workspaceFolder}/src/main"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",  // 总是显示终端输出
+                "focus": false,      // 执行时不聚焦到终端
+                "panel": "shared"    // 使用共享终端面板
+            },
+            "problemMatcher": "$go",  // 使用 Go 的问题匹配器
+            "runOptions": {
+                "runOn": "default"
+            },
+
         }
-    ]
+    ],
+
+
 }

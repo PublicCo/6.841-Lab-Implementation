@@ -31,17 +31,26 @@ type Coordinator struct {
 // an example RPC handler.
 //
 // the RPC argument and reply types are defined in rpc.go.
-func (c *Coordinator) Example(args *ExampleArgs, reply *ExampleReply) error {
-	reply.Y = args.X + 1
+//
+//	func (c *Coordinator) Example(args *ExampleArgs, reply *ExampleReply) error {
+//		reply.Y = args.X + 1
+//		return nil
+//	}
+func (c *Coordinator) Example(args *CallArgs, reply *TaskReply) error {
+	tmp := TaskReply{}
+	tmp.Task.Index = 99
+	reply.Task = tmp.Task
 	return nil
 }
 
 // 响应Map完成事件
 func (c *Coordinator) HandleMapFinish(args *CallArgs, reply *TaskReply) error {
+	c.mut.Lock()
+	defer c.mut.Unlock()
 	// 检测时间戳
-	if args.task.timestamp == c.maptask[args.task.index].timestamp {
+	if args.Task.Timestamp == c.maptask[args.Task.Index].Timestamp {
 		// 更改task状态
-		c.maptask[args.task.index].missionstate = Done
+		c.maptask[args.Task.Index].Missionstate = Done
 	}
 
 	return nil
@@ -60,18 +69,18 @@ func (c *Coordinator) AssignMission(args *CallArgs, reply *TaskReply) error {
 			currenttime := time.Now()
 
 			// 如果任务未分配或者任务超过了10秒
-			if (c.maptask[i].missionstate == Ready) || (c.maptask[i].missionstate == Running && currenttime.Sub(c.maptask[i].timestamp).Seconds() > 10) {
+			if (c.maptask[i].Missionstate == Ready) || (c.maptask[i].Missionstate == Running && currenttime.Sub(c.maptask[i].Timestamp).Seconds() > 10) {
 				// 重新分配
-				c.maptask[i].timestamp = time.Now() //更新时间戳
-				c.maptask[i].missionstate = Running
-				reply.task = c.maptask[i]
+				c.maptask[i].Timestamp = time.Now() //更新时间戳
+				c.maptask[i].Missionstate = Running
+				reply.Task = c.maptask[i]
 
 				// 分配任务成功，说明map任务未完成
 				c.maptaskfinish = false
 
 				// 完成，返回给worker执行
 				return nil
-			} else if c.maptask[i].missionstate == Running {
+			} else if c.maptask[i].Missionstate == Running {
 				// 还有任务正在运行，map任务没有结束
 				tmpCheckAllFinish = false
 			}
@@ -81,7 +90,7 @@ func (c *Coordinator) AssignMission(args *CallArgs, reply *TaskReply) error {
 
 		//如果运行到这里，说明没有找到一个合适的任务进行分配。因此分配为waiting
 		assert(i == len(c.maptask), "任务分配出错：未遍历完成任务列表即跳出")
-		reply.task.worktype = Waiting
+		reply.Task.Worktype = Waiting
 		return nil
 	} else {
 		// 完成reduce任务分配
@@ -108,7 +117,8 @@ func (c *Coordinator) server() {
 // if the entire job has finished.
 func (c *Coordinator) Done() bool {
 	ret := false
-
+	c.mut.Lock()
+	defer c.mut.Unlock()
 	// Your code here.
 
 	// 如果mapfinish和reducefinish就Done
@@ -140,9 +150,9 @@ func MakeCoordinator(files []string, nReduce int) *Coordinator {
 	//初始化可以分配的maptask
 	for i, filename := range c.filename {
 		tmp := Task{}
-		tmp.missionstate = Ready
-		tmp.index = i
-		tmp.mapfile = filename
+		tmp.Missionstate = Ready
+		tmp.Index = i
+		tmp.Mapfile = filename
 		c.maptask = append(c.maptask, tmp)
 
 	}
@@ -150,13 +160,13 @@ func MakeCoordinator(files []string, nReduce int) *Coordinator {
 	// 初始化reducetask
 	for i := 0; i < c.nreduce; i++ {
 		c.reducetask = append(c.reducetask, Task{})
-		c.reducetask[i].worktype = Reduce
-		c.reducetask[i].index = i
-		c.reducetask[i].missionstate = Ready
+		c.reducetask[i].Worktype = Reduce
+		c.reducetask[i].Index = i
+		c.reducetask[i].Missionstate = Ready
 
 		// 初始化每个要读取的reducefile的文件名
 		for index := range c.filename {
-			c.reducetask[i].reducefiles = append(c.reducetask[i].reducefiles, fmt.Sprintf("mr-%v-%v", index, i))
+			c.reducetask[i].Reducefiles = append(c.reducetask[i].Reducefiles, fmt.Sprintf("mr-%v-%v", index, i))
 		}
 	}
 
