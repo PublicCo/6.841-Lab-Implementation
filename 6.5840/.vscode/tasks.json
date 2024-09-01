@@ -3,6 +3,7 @@
     // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
+
         {
             "label": "Build wc plugin",
             "type": "shell",
@@ -40,7 +41,8 @@
             "args": [
                 "-rf",
                 "Tempfile*.txt",
-                "mr-*.txt"
+                "mr-*.txt",
+                "ReduceTempfile*.txt"
             ], "options": {
                 "cwd": "${workspaceFolder}/src/main"
             },
@@ -48,16 +50,28 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "presentation": {
-                "reveal": "always",  // 总是显示终端输出
-                "focus": false,      // 执行时不聚焦到终端
-                "panel": "shared"    // 使用共享终端面板
+        
+        },
+        {
+            "label": "Sleep To Wait",
+            "type": "shell",
+            "command":"sleep",
+            "args": [
+                "3",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/main"
             },
-            "problemMatcher": "$go",  // 使用 Go 的问题匹配器
-            "runOptions": {
-                "runOn": "default"
+            "group": {
+                "kind": "build",
+                "isDefault": true
             },
-
+        },
+        {
+            "label": "Prelaunch Compound Task",
+            "dependsOn": ["Remove file", "Build wc plugin"],
+            "dependsOrder": "sequence",
+            "problemMatcher": []
         }
     ],
 

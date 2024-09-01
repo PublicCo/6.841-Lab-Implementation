@@ -5,16 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Worker Debugger",
+            "name": "Worker Debugger-1",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/src/main/mrworker.go",
             "buildFlags": ["-race"],
             "args": ["wc.so"],
-            //"preLaunchTask": "Build wc plugin",
+            "preLaunchTask": "Sleep To Wait",
             "cwd": "${workspaceFolder}/src/main" , // 设置当前工作目录
-            
+            "console": "integratedTerminal",
         },
 
         {
@@ -25,15 +25,41 @@
             "program": "${workspaceFolder}/src/main/mrcoordinator.go",
             "buildFlags": ["-race"],
             "args": ["pg-*.txt"],
-            "preLaunchTask": "Build wc plugin",
+            "preLaunchTask": "Prelaunch Compound Task",
             "cwd": "${workspaceFolder}/src/main" , // 设置当前工作目录
             
-        }
+            "console": "integratedTerminal",
+        },
+        {
+            "name": "Worker Debugger-2",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/src/main/mrworker.go",
+            "buildFlags": ["-race"],
+            "args": ["wc.so"],
+            "preLaunchTask": "Sleep To Wait",
+            "cwd": "${workspaceFolder}/src/main" ,// 设置当前工作目录
+            
+            "console": "integratedTerminal",
+        },
+        {
+            "name": "Worker Debugger-3",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/src/main/mrworker.go",
+            "buildFlags": ["-race"],
+            "args": ["wc.so"],
+            "preLaunchTask": "Sleep To Wait",
+            "cwd": "${workspaceFolder}/src/main" , // 设置当前工作目录
+             "console": "integratedTerminal",
+        },
     ],
     "compounds": [
         {
             "name": "Debug Master and Worker",
-            "configurations": ["Coordinator Debugger", "Worker Debugger"]
+            "configurations": ["Coordinator Debugger", "Worker Debugger-1","Worker Debugger-2",]//"Worker Debugger-3"]
         }
     ]
 }

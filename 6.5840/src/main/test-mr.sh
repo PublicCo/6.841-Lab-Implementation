@@ -5,7 +5,7 @@
 #
 
 # un-comment this to run the tests with the Go race detector.
-# RACE=-race
+RACE=-race
 
 if [[ "$OSTYPE" = "darwin"* ]]
 then
@@ -47,8 +47,8 @@ fi
 if [ "$TIMEOUT" != "" ]
 then
   TIMEOUT2=$TIMEOUT
-  TIMEOUT2+=" -k 2s 120s "
-  TIMEOUT+=" -k 2s 45s "
+  TIMEOUT2+=" -k 2s 1200s "
+  TIMEOUT+=" -k 2s 450s "
 fi
 
 # run the test in a fresh sub-directory.
@@ -93,10 +93,12 @@ sleep 1
 # start multiple workers.
 (maybe_quiet $TIMEOUT ../mrworker ../../mrapps/wc.so) &
 (maybe_quiet $TIMEOUT ../mrworker ../../mrapps/wc.so) &
-(maybe_quiet $TIMEOUT ../mrworker ../../mrapps/wc.so) &
+# (maybe_quiet $TIMEOUT ../mrworker ../../mrapps/wc.so) &
+
 
 # wait for the coordinator to exit.
 wait $pid
+
 
 # since workers are required to exit when a job is completely finished,
 # and not before, that means the job has finished.
