@@ -5,6 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Lab2 Debugger",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/src/kvsrv",
+            "args": [
+
+            ],
+            "buildFlags": ["-race"],
+            "showLog": true,
+        },
+        {
             "name": "Worker Debugger-1",
             "type": "go",
             "request": "launch",

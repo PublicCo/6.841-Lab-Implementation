@@ -1,9 +1,11 @@
 package kvsrv
 
-import "6.5840/labrpc"
-import "crypto/rand"
-import "math/big"
+import (
+	"crypto/rand"
+	"math/big"
 
+	"6.5840/labrpc"
+)
 
 type Clerk struct {
 	server *labrpc.ClientEnd
@@ -37,7 +39,20 @@ func MakeClerk(server *labrpc.ClientEnd) *Clerk {
 func (ck *Clerk) Get(key string) string {
 
 	// You will have to modify this function.
-	return ""
+
+	// get方法本身是幂等的，如果没接收到只需要不停发送就可以了
+	// 如果没有正确发送，客户端需要重复发送
+	getargs := GetArgs{}
+	getargs.Key = key
+	getreply := GetReply{}
+	for {
+		ok := ck.server.Call("KVServer.Get", &getargs, &getreply)
+		if ok {
+			break
+		}
+	}
+
+	return getreply.Value
 }
 
 // shared by Put and Append.
@@ -50,7 +65,56 @@ func (ck *Clerk) Get(key string) string {
 // arguments. and reply must be passed as a pointer.
 func (ck *Clerk) PutAppend(key string, value string, op string) string {
 	// You will have to modify this function.
-	return ""
+
+	// 首先，对于每个操作都生成一个唯一ID
+	// 由于randon函数都写好了，我们就随机分配ID。更好的方法应该是使用自增id
+	id := nrand()
+	args := PutAppendArgs{}
+	args.Key = key
+	args.Value = value
+	args.ID = id
+	args.State = Modify
+
+	reply := PutAppendReply{}
+	if op == "Put" {
+		// 第一波循环，请求修改
+		for {
+			ok := ck.server.Call("KVServer.Put", &args, &reply)
+			if ok {
+				break
+			}
+		}
+		reslt := reply.Value
+		// 第二波循环，请求删除缓存
+		args.State = Ack
+		reply := PutAppendReply{}
+		for {
+			ok := ck.server.Call("KVServer.Put", &args, &reply)
+			if ok {
+				break
+			}
+		}
+		return reslt
+	} else { //op==append
+		// 第一波循环，请求修改
+		for {
+			ok := ck.server.Call("KVServer.Append", &args, &reply)
+			if ok {
+				break
+			}
+		}
+		reslt := reply.Value
+		// 第二波循环，请求删除缓存
+		args.State = Ack
+		reply := PutAppendReply{}
+		for {
+			ok := ck.server.Call("KVServer.Append", &args, &reply)
+			if ok {
+				break
+			}
+		}
+		return reslt
+	}
 }
 
 func (ck *Clerk) Put(key string, value string) {

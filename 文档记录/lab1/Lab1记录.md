@@ -1,10 +1,18 @@
+## 实现参考
+
+我参考了这个[链接](https://blog.imfing.com/2020/09/mit-6.824-lab1-map-reduce/)的实现思路。这个博客说的很详细了，把结构体定义出来就可以开始着手自己实现了。
+
+我的具体实现思路已在代码中注释。
+
 ## 配置调试遇到的问题：插件构建出错
 
-可以查看这个[链接](https://stackoverflow.com/questions/70642618/cannot-load-plugin-when-debugging-golang-file-in-vscode)或者这个[链接](https://juejin.cn/post/7211861991533690937)
+出现这个问题是因为debugger要求debug前所有内容都要是正确的。可以查看这个[链接](https://stackoverflow.com/questions/70642618/cannot-load-plugin-when-debugging-golang-file-in-vscode)或者这个[链接](https://juejin.cn/post/7211861991533690937)
 
 需要额外添加一个指令：-gcflags "all=-N -l"
 
+你可以参照我在.vscode下的launch.json和task.json进行配置。
 
+要注意：构建插件和go run版本要一致，要同时开关-race，否则会出现插件版本不对的报错
 
 ## Struct大小写问题
 
@@ -55,7 +63,7 @@ fi
 
 可能这就是wsl下人一等吧（悲）
 
-**2024.9.1 该问题已解决**：出现该问题的原因是使用mnt挂载win系统并在该系统下运行程序会导致读写操作奇慢无比。你需要将相关文件挂在在wsl的Linux系统下（我现在挂在在home下），可以显著提高读写速度并解决Rename冲突
+**2024.9.1 该问题已解决**：出现该问题的原因是使用mnt挂载win系统并在该系统下运行程序会导致读写操作奇慢无比（毕竟一直在外部设备中读写）。你需要将相关文件挂在在wsl的Linux系统下（我现在挂在在home下），可以显著提高读写速度（上百倍）并解决Rename冲突
 
 ![image-20240901100056611](C:\Users\leon\AppData\Roaming\Typora\typora-user-images\image-20240901100056611.png)
 
