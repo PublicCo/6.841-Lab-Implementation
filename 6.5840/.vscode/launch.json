@@ -15,6 +15,20 @@
             ],
             "buildFlags": ["-race"],
             "showLog": true,
+            
+        }, 
+        {
+            "name": "Lab3 Debugger",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/src/raft",
+            "args": [
+                "-test.run",
+                "3A"
+            ],
+           "buildFlags":"-race",
+            "console": "integratedTerminal",
         },
         {
             "name": "Worker Debugger-1",
