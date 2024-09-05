@@ -330,6 +330,7 @@ func (rf *Raft) emitElection() {
 		if i == rf.me {
 			continue
 		}
+		// 向所有server发送选举请求
 		go func(i int, args RequestVoteArgs) {
 
 			reply := RequestVoteReply{}

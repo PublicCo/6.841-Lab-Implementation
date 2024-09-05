@@ -10,7 +10,6 @@ package raft
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
 	"sync"
 	"sync/atomic"
@@ -64,7 +63,7 @@ func TestReElection3A(t *testing.T) {
 
 	// if the leader disconnects, a new one should be elected.
 	cfg.disconnect(leader1)
-	log.Print("Leader Down\n")
+	// log.Print("Leader Down\n")
 	cfg.checkOneLeader()
 
 	// if the old leader rejoins, that shouldn't
@@ -77,7 +76,7 @@ func TestReElection3A(t *testing.T) {
 	// be elected.
 	cfg.disconnect(leader2)
 	cfg.disconnect((leader2 + 1) % servers)
-	log.Print("No more than half server")
+	// log.Print("No more than half server")
 	time.Sleep(2 * RaftElectionTimeout)
 
 	// check that the one connected server
